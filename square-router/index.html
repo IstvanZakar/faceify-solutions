@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Routing to Square...</title>
+    <script>
+        window.onload = function() {
+            // 1. Grab the ID from the URL (e.g., ?id=inv:12345)
+            const urlParams = new URLSearchParams(window.location.search);
+            const invoiceId = urlParams.get('id') || 'new';
+            
+            // 2. Build the target scheme
+            const targetScheme = "square-register://invoice/" + invoiceId;
+            
+            // 3. Fire the redirect immediately
+            // Using replace() so the routing page doesn't get stuck in the back-button history
+            window.location.replace(targetScheme);
+        };
+    </script>
+    <style>
+        body { font-family: -apple-system, sans-serif; text-align: center; padding-top: 50px; color: #666; }
+    </style>
+</head>
+<body>
+    <p>Opening Square...</p>
+</body>
+</html>
