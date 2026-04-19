@@ -23,6 +23,21 @@
                 targetUrl = rawId ? "https://app.squareup.com/dashboard/invoices/" + rawId : "https://app.squareup.com/dashboard/invoices";
             }
 
+            // 1. The Boomerang Listener
+            document.addEventListener("visibilitychange", function() {
+                if (document.visibilityState === 'visible') {
+                    document.getElementById('status-title').innerText = "✅ Done!";
+                    document.getElementById('status-message').innerText = "Taking you back to AppSheet...";
+                    
+                    // Attempt 1: Try to close the tab (Works if AppSheet forced a new tab)
+                    setTimeout(() => window.close(), 100);
+                    
+                    // Attempt 2: Throw the browser backward in history (Works if AppSheet used the same tab)
+                    setTimeout(() => window.history.back(), 300);
+                }
+            });
+
+            // 2. Fire the redirect to Square
             window.location.replace(targetUrl);
         };
     </script>
