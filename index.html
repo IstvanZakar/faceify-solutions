@@ -8,12 +8,30 @@
         window.onload = function() {
             // 1. Grab the ID from the URL (e.g., ?id=inv:12345)
             const urlParams = new URLSearchParams(window.location.search);
-            const invoiceId = urlParams.get('id') || 'new';
+            const rawId = urlParams.get('id');
+
+            // 2. Device Detection Engine
+            // Checks for mobile operating systems, AND catches modern iPads which try to pretend they are desktop Macs
+            const isMobile = /iPhone|iPad|iPod|Android|webOS|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) || 
+                             (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+
+            let targetUrl = "";
             
-            // 2. Build the target scheme
-            const targetScheme = "square-register://invoice/" + invoiceId;
+            // 3. Build the Target URL based on the device
+            if (isMobile) {
+                // MOBILE: Route to the Native iOS/Android App
+                const invoicePath = rawId ? "view/" + rawId : "new";
+                targetUrl = "square-register://invoice/" + invoicePath;
+            } else {
+                // DESKTOP: Route to the Web Dashboard
+                if (rawId) {
+                    targetUrl = "https://app.squareup.com/dashboard/invoices/" + rawId;
+                } else {
+                    targetUrl = "https://app.squareup.com/dashboard/invoices";
+                }
+            }
             
-            // 3. Fire the redirect immediately
+            // 4. Fire the redirect immediately
             // Using replace() so the routing page doesn't get stuck in the back-button history
             window.location.replace(targetScheme);
         };
