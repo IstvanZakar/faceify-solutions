@@ -18,7 +18,7 @@
                 const invoicePath = rawId ? "view/" + rawId : "new";
                 targetUrl = "square-register://invoice/" + invoicePath;
                 // try going back
-                setTimeout(() => window.history.back(), 2000);
+                setTimeout(() => window.close(), 2000);
             } else {
                 targetUrl = rawId ? "https://app.squareup.com/dashboard/invoices/" + rawId : "https://app.squareup.com/dashboard/invoices";
             }
