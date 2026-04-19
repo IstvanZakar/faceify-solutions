@@ -11,12 +11,11 @@
             const rawId = urlParams.get('id');
 
             // 2. Device Detection Engine
-            // Checks for mobile operating systems, AND catches modern iPads which try to pretend they are desktop Macs
             const isMobile = /iPhone|iPad|iPod|Android|webOS|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) || 
                              (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
 
             let targetUrl = "";
-            
+
             // 3. Build the Target URL based on the device
             if (isMobile) {
                 // MOBILE: Route to the Native iOS/Android App
@@ -30,17 +29,42 @@
                     targetUrl = "https://app.squareup.com/dashboard/invoices";
                 }
             }
+
+            // --- VISUAL DEBUGGER UI ---
+            // Push the calculated data into the HTML so you can read it
+            document.getElementById('debug-device').innerText = isMobile ? "Mobile (App Scheme)" : "Desktop (Web URL)";
+            document.getElementById('debug-url').innerText = targetUrl;
             
-            // 4. Fire the redirect immediately
-            // Using replace() so the routing page doesn't get stuck in the back-button history
-            window.location.replace(targetUrl);
+            // Bind the URL to the manual fallback button
+            document.getElementById('manual-btn').href = targetUrl;
+
+            // 4. Fire the redirect immediately (Wrapped in a try/catch)
+            try {
+                window.location.replace(targetUrl);
+            } catch (e) {
+                document.getElementById('error-log').innerText = "Auto-redirect failed: " + e.message;
+            }
         };
     </script>
     <style>
-        body { font-family: -apple-system, sans-serif; text-align: center; padding-top: 50px; color: #666; }
+        body { font-family: -apple-system, sans-serif; text-align: center; padding-top: 40px; color: #333; background: #f4f6f8; }
+        .debug-box { margin: 20px auto; padding: 15px; max-width: 90%; background: #fff; border: 1px solid #ddd; border-radius: 8px; word-break: break-all; font-family: monospace; font-size: 14px; text-align: left; }
+        .launch-btn { display: inline-block; background-color: #006aff; color: white; font-size: 18px; font-weight: bold; padding: 15px 30px; border-radius: 10px; text-decoration: none; margin-top: 10px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+        .launch-btn:active { background-color: #0050c2; }
+        #error-log { color: red; margin-top: 20px; font-family: monospace; font-size: 12px; }
     </style>
 </head>
 <body>
-    <p>Opening Square...</p>
+    <h2>Square Router</h2>
+
+    <div class="debug-box">
+        <strong>Detected Mode:</strong> <span id="debug-device">Calculating...</span><br><br>
+        <strong>Target URL:</strong><br>
+        <span id="debug-url" style="color: #006aff;">Calculating...</span>
+    </div>
+
+    <a id="manual-btn" href="#" class="launch-btn">Tap to Open Manually</a>
+
+    <div id="error-log"></div>
 </body>
 </html>
