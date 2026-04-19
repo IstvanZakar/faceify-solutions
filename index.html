@@ -3,68 +3,64 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Routing to Square...</title>
+    <title>Square Routing</title>
     <script>
         window.onload = function() {
-            // 1. Grab the ID from the URL (e.g., ?id=inv:12345)
             const urlParams = new URLSearchParams(window.location.search);
             const rawId = urlParams.get('id');
 
-            // 2. Device Detection Engine
             const isMobile = /iPhone|iPad|iPod|Android|webOS|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) || 
                              (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
 
             let targetUrl = "";
 
-            // 3. Build the Target URL based on the device
             if (isMobile) {
-                // MOBILE: Route to the Native iOS/Android App
                 const invoicePath = rawId ? "view/" + rawId : "new";
                 targetUrl = "square-register://invoice/" + invoicePath;
             } else {
-                // DESKTOP: Route to the Web Dashboard
-                if (rawId) {
-                    targetUrl = "https://app.squareup.com/dashboard/invoices/" + rawId;
-                } else {
-                    targetUrl = "https://app.squareup.com/dashboard/invoices";
+                targetUrl = rawId ? "https://app.squareup.com/dashboard/invoices/" + rawId : "https://app.squareup.com/dashboard/invoices";
+            }
+
+            // 1. The Boomerang Listener
+            document.addEventListener("visibilitychange", function() {
+                if (document.visibilityState === 'visible') {
+                    document.getElementById('status-title').innerText = "✅ Done!";
+                    document.getElementById('status-message').innerText = "Taking you back to AppSheet...";
+                    
+                    // Attempt 1: Try to close the tab (Works if AppSheet forced a new tab)
+                    setTimeout(() => window.close(), 100);
+                    
+                    // Attempt 2: Throw the browser backward in history (Works if AppSheet used the same tab)
+                    setTimeout(() => window.history.back(), 300);
                 }
-            }
+            });
 
-            // --- VISUAL DEBUGGER UI ---
-            // Push the calculated data into the HTML so you can read it
-            document.getElementById('debug-device').innerText = isMobile ? "Mobile (App Scheme)" : "Desktop (Web URL)";
-            document.getElementById('debug-url').innerText = targetUrl;
-            
-            // Bind the URL to the manual fallback button
-            document.getElementById('manual-btn').href = targetUrl;
-
-            // 4. Fire the redirect immediately (Wrapped in a try/catch)
-            try {
-                window.location.replace(targetUrl);
-            } catch (e) {
-                document.getElementById('error-log').innerText = "Auto-redirect failed: " + e.message;
-            }
+            // 2. Fire the redirect to Square
+            window.location.replace(targetUrl);
         };
     </script>
     <style>
-        body { font-family: -apple-system, sans-serif; text-align: center; padding-top: 40px; color: #333; background: #f4f6f8; }
-        .debug-box { margin: 20px auto; padding: 15px; max-width: 90%; background: #fff; border: 1px solid #ddd; border-radius: 8px; word-break: break-all; font-family: monospace; font-size: 14px; text-align: left; }
-        .launch-btn { display: inline-block; background-color: #006aff; color: white; font-size: 18px; font-weight: bold; padding: 15px 30px; border-radius: 10px; text-decoration: none; margin-top: 10px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
-        .launch-btn:active { background-color: #0050c2; }
-        #error-log { color: red; margin-top: 20px; font-family: monospace; font-size: 12px; }
+        body { font-family: -apple-system, sans-serif; text-align: center; padding-top: 60px; color: #333; background: #f8f9fa; }
+        .card { background: white; padding: 40px 20px; margin: 0 auto; max-width: 90%; border-radius: 16px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
+        h2 { margin-bottom: 10px; color: #1a1a1a; }
+        p { color: #666; line-height: 1.5; font-size: 16px; }
+        /* A manual fallback button just in case iOS blocks the auto-return */
+        .back-btn { display: inline-block; margin-top: 20px; padding: 12px 24px; background: #000; color: #fff; text-decoration: none; border-radius: 8px; font-weight: bold; }
     </style>
 </head>
 <body>
-    <h2>Square Router</h2>
-
-    <div class="debug-box">
-        <strong>Detected Mode:</strong> <span id="debug-device">Calculating...</span><br><br>
-        <strong>Target URL:</strong><br>
-        <span id="debug-url" style="color: #006aff;">Calculating...</span>
+    <div class="card">
+        <h2 id="status-title">Routing to Square...</h2>
+        <p id="status-message">Please wait a moment.</p>
+        <a href="javascript:window.history.back();" class="back-btn" id="manual-back" style="display:none;">Return to AppSheet</a>
     </div>
-
-    <a id="manual-btn" href="#" class="launch-btn">Tap to Open Manually</a>
-
-    <div id="error-log"></div>
+    <script>
+        // Reveal the manual back button when they return
+        document.addEventListener("visibilitychange", function() {
+            if (document.visibilityState === 'visible') {
+                document.getElementById('manual-back').style.display = 'inline-block';
+            }
+        });
+    </script>
 </body>
 </html>
